@@ -1,0 +1,10 @@
+streamlit
+streamlit-autorefresh
+yfinance
+pandas
+numpy
+plotly
+python-dotenv
+requests
+fastapi
+uvicorn[standard]

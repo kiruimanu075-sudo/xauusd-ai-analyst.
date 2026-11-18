@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XAUUSD AI Analyst</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#10151f;color:#edf2f7;margin:0;padding:28px}
+    main{max-width:1100px;margin:auto}
+    h1{margin-bottom:6px}.muted{color:#9aa8ba}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:22px 0}
+    .card{background:#1b2533;border:1px solid #344255;border-radius:12px;padding:18px}
+    .value{font-size:25px;font-weight:700;margin-top:8px}
+    pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#1b2533;padding:16px;border-radius:12px}
+    .status{padding:8px 12px;border-radius:8px;background:#26364a;display:inline-block}
+  </style>
+</head>
+<body>
+<main>
+  <h1>XAUUSD AI Market Analyst</h1>
+  <div class="muted">Live analysis from your Python backend · refreshes every 15 seconds</div>
+  <p><span id="connection" class="status">Connecting…</span></p>
+  <section class="grid">
+    <div class="card">Gold price<div id="price" class="value">—</div></div>
+    <div class="card">Market bias<div id="bias" class="value">—</div></div>
+    <div class="card">RSI<div id="rsi" class="value">—</div></div>
+    <div class="card">Momentum<div id="momentum" class="value">—</div></div>
+  </section>
+  <div class="card">
+    <h2>Latest analysis</h2>
+    <div id="updated" class="muted">No update received yet</div>
+    <pre id="details">Waiting for backend data…</pre>
+  </div>
+</main>
+<script src="config.js"></script>
+<script>
+const API_BASE = window.XAUUSD_API_URL || "https://YOUR-BACKEND.onrender.com";
+async function refresh(){
+  const status = document.getElementById("connection");
+  try {
+    const response = await fetch(API_BASE.replace(/\/$/,"") + "/api/latest", {cache:"no-store"});
+    if(!response.ok) throw new Error("HTTP " + response.status);
+    const d = await response.json();
+    status.textContent = "Backend connected";
+    document.getElementById("price").textContent =
+      d.price == null ? "—" : Number(d.price).toFixed(2);
+    document.getElementById("bias").textContent = d.bias || d.status || "—";
+    document.getElementById("rsi").textContent =
+      d.rsi == null ? "—" : Number(d.rsi).toFixed(2);
+    document.getElementById("momentum").textContent = d.momentum || "—";
+    document.getElementById("updated").textContent =
+      "Last update: " + (d.updated_at_eat || d.updated_at || "not available");
+    document.getElementById("details").textContent = JSON.stringify(d, null, 2);
+  } catch(e) {
+    status.textContent = "Backend unavailable: " + e.message;
+  }
+}
+refresh();
+setInterval(refresh, 15000);
+</script>
+</body>
+</html>
